@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+sqlmodel
+pydantic
+pydantic-settings
+python-multipart
+scikit-learn
+pandas
+numpy
+httpx
+python-jose[cryptography]
+passlib[bcrypt]
