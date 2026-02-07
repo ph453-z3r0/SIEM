@@ -7,10 +7,10 @@ from app.core.database import create_db_and_tables
 async def lifespan(app: FastAPI):
     from app.core.logging import setup_logging, logger
     setup_logging()
-    logger.info("Sentinel-X SIEM Backend Starting...")
+    logger.info("Titan-SIEM Backend Starting...")
     create_db_and_tables()
     yield
-    logger.info("Sentinel-X SIEM Backend Shutting Down...")
+    logger.info("Titan-SIEM Backend Shutting Down...")
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -34,6 +34,6 @@ app.include_router(dashboard.router, prefix=f"{settings.API_V1_STR}/dashboard", 
 
 @app.get("/")
 def root():
-    return {"message": "Sentinel-X SIEM Active"}
+    return {"message": "Titan-SIEM Active"}
 
 # We will import and include routers here later

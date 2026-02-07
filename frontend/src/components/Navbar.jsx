@@ -19,7 +19,7 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                         <Shield className="w-8 h-8 text-primary" />
-                        <h1 className="text-2xl font-bold text-gray-100">Sentinel-X SIEM</h1>
+                        <h1 className="text-2xl font-bold text-gray-100">Titan-SIEM</h1>
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
@@ -34,11 +34,10 @@ const Navbar = ({ activeTab, setActiveTab }) => {
                             <button
                                 key={item.id}
                                 onClick={() => setActiveTab(item.id)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                                    activeTab === item.id
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${activeTab === item.id
                                         ? 'bg-primary text-white'
                                         : 'bg-background text-gray-400 hover:bg-gray-700 hover:text-white'
-                                }`}
+                                    }`}
                             >
                                 <Icon className="w-4 h-4" />
                                 <span className="text-sm font-medium">{item.label}</span>

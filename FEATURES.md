@@ -1,7 +1,7 @@
-# Sentinel-X SIEM: Feature & Capability Reference
+# Titan-SIEM SIEM: Feature & Capability Reference
 
 ## 🛡️ System Overview
-Sentinel-X is an advanced Security Information and Event Management (SIEM) platform designed for real-time threat detection, AI-powered anomaly analysis, and automated incident response.
+Titan-SIEM is an advanced Security Information and Event Management (SIEM) platform designed for real-time threat detection, AI-powered anomaly analysis, and automated incident response.
 
 ---
 

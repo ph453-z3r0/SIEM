@@ -6,7 +6,7 @@ from datetime import datetime
 BASE_URL = "http://localhost:8000/api/v1"
 
 def run_demo():
-    print("🚀 Starting Sentinel-X Demo Scenario: Insider Threat")
+    print("🚀 Starting Titan-SIEM Demo Scenario: Insider Threat")
     
     # 1. Simulate Normal Traffic (Training)
     print("\n[1/4] Simulating Normal Traffic...")

@@ -29,7 +29,7 @@ def make_header():
     grid.add_column(justify="right")
     
     grid.add_row(
-        "[b cyan]Sentinel-X SIEM[/b cyan] | Industrial Grade Security",
+        "[b cyan]Titan-SIEM[/b cyan] | Industrial Grade Security",
         "[b yellow]SYSTEM STATUS: ONLINE[/b yellow]",
         datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )

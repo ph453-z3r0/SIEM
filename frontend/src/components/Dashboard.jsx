@@ -29,7 +29,7 @@ const Dashboard = ({ refreshInterval = 2000, isLive = true }) => {
     if (loading || !data) return (
         <div className="flex flex-col items-center justify-center h-96 text-primary gap-4">
             <Activity className="w-12 h-12 animate-spin" />
-            <span className="text-xl font-mono tracking-widest">INITIALIZING SENTINEL-X...</span>
+            <span className="text-xl font-mono tracking-widest">INITIALIZING TITAN-SIEM...</span>
         </div>
     );
 
@@ -199,8 +199,8 @@ const Dashboard = ({ refreshInterval = 2000, isLive = true }) => {
                             <div key={idx} className="flex gap-3 text-gray-400 hover:text-gray-200 transition-colors">
                                 <span className="text-gray-600">[{log.timestamp.split(' ')[1]}]</span>
                                 <span className={`${log.category === 'network' ? 'text-blue-400' :
-                                        log.category === 'hardware' ? 'text-yellow-400' :
-                                            log.category === 'application' ? 'text-green-400' : 'text-red-400'
+                                    log.category === 'hardware' ? 'text-yellow-400' :
+                                        log.category === 'application' ? 'text-green-400' : 'text-red-400'
                                     }`}>
                                     {log.category ? log.category.toUpperCase() : 'SEC'}
                                 </span>

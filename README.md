@@ -1,5 +1,5 @@
 
-# 🛡️ Sentinel-X SIEM
+# 🛡️ Titan-SIEM SIEM
 
 > **Next-Generation Security Information and Event Management**  
 > *Real-time Threat Detection | Machine Learning Anomaly Detection | Automated Incident Response*
@@ -14,7 +14,7 @@
 
 ## 🧠 System Architecture
 
-Sentinel-X utilizes a microservices-inspired architecture for high-performance security monitoring.
+Titan-SIEM utilizes a microservices-inspired architecture for high-performance security monitoring.
 
 ```mermaid
 graph TD
@@ -50,7 +50,7 @@ graph TD
 
 ## 🌊 Threat Detection Pipeline
 
-The core of Sentinel-X is its hybrid detection engine, combining rule-based heuristics with unsupervised machine learning.
+The core of Titan-SIEM is its hybrid detection engine, combining rule-based heuristics with unsupervised machine learning.
 
 ```mermaid
 flowchart LR
@@ -152,8 +152,8 @@ A utility script is provided to completely reset the environment and restart ser
 ### Quick Start
 ```bash
 # 1. Clone Repository
-git clone https://github.com/ph453-z3r0/Sentinel-X.git
-cd Sentinel-X
+git clone https://github.com/ph453-z3r0/Titan-SIEM.git
+cd Titan-SIEM
 
 # 2. Setup Backend
 cd backend

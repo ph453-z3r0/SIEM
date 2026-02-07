@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "Sentinel-X"
+    PROJECT_NAME: str = "Titan-SIEM"
     API_V1_STR: str = "/api/v1"
     DATABASE_URL: str = "sqlite:///./sentinel.db"
     SECRET_KEY: str = "supersecretkey" # TODO: Change in production
