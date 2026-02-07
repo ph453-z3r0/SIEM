@@ -14,12 +14,15 @@ from sqlmodel import Session as SQLSession
 def get_session_factory():
     return lambda: SQLSession(engine)
 
+from app.core.logging import logger
+
 @router.post("/logs", response_model=Log)
 def ingest_log(log: Log, background_tasks: BackgroundTasks, session: Session = Depends(get_session)):
     """
     Ingest a new log entry.
     Trigger async analysis here.
     """
+    logger.info(f"Received log from {log.source} (Type: {log.event_type})")
     session.add(log)
     session.commit()
     session.refresh(log)
@@ -30,8 +33,10 @@ def ingest_log(log: Log, background_tasks: BackgroundTasks, session: Session = D
 
 @router.get("/alerts", response_model=List[Alert])
 def read_alerts(skip: int = 0, limit: int = 100, session: Session = Depends(get_session)):
+    logger.debug(f"Fetching alerts (skip={skip}, limit={limit})")
     return session.query(Alert).offset(skip).limit(limit).all()
 
 @router.get("/logs", response_model=List[Log])
 def read_logs(skip: int = 0, limit: int = 50, session: Session = Depends(get_session)):
+    logger.debug(f"Fetching logs (skip={skip}, limit={limit})")
     return session.query(Log).order_by(Log.timestamp.desc()).offset(skip).limit(limit).all()

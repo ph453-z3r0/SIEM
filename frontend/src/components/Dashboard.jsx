@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Shield, Search, RefreshCw, Eye, AlertTriangle, Activity, Map, User } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, AreaChart, Area } from 'recharts';
+import { Shield, Search, RefreshCw, Eye, AlertTriangle, Activity, Map, User, Terminal, Server, Globe } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
-const Dashboard = () => {
+const Dashboard = ({ refreshInterval = 2000, isLive = true }) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -19,52 +19,93 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetchData();
-        const interval = setInterval(fetchData, 5000); // Real-time polling
+        let interval;
+        if (isLive) {
+            interval = setInterval(fetchData, refreshInterval);
+        }
         return () => clearInterval(interval);
-    }, []);
+    }, [refreshInterval, isLive]);
 
-    if (loading || !data) return <div className="flex items-center justify-center h-96 text-primary">Loading Sentinel-X...</div>;
+    if (loading || !data) return (
+        <div className="flex flex-col items-center justify-center h-96 text-primary gap-4">
+            <Activity className="w-12 h-12 animate-spin" />
+            <span className="text-xl font-mono tracking-widest">INITIALIZING SENTINEL-X...</span>
+        </div>
+    );
+
+    // Prepare Radar Data
+    const radarData = [
+        { subject: 'Security', A: data.stats.by_category?.security || 0, fullMark: 100 },
+        { subject: 'Network', A: data.stats.by_category?.network || 0, fullMark: 100 },
+        { subject: 'App', A: data.stats.by_category?.application || 0, fullMark: 100 },
+        { subject: 'Hardware', A: data.stats.by_category?.hardware || 0, fullMark: 100 },
+    ];
 
     return (
-        <div className="p-6">
-            {/* Quick Search Header */}
-            <div className="mb-6 flex items-center justify-between">
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-100 mb-2">Dashboard Overview</h2>
-                    <p className="text-gray-400">Real-time security monitoring and analytics</p>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">Command Center</h1>
+                    <p className="text-gray-400 mt-1 flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></span>
+                        System Operational | Industrial Monitoring {isLive ? 'Active' : 'Paused'}
+                    </p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search for User"
-                            className="bg-surface border border-gray-600 rounded-md pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary w-64"
-                        />
-                    </div>
-                    <button onClick={fetchData} className="flex items-center gap-2 bg-surface border border-gray-600 px-4 py-2 rounded-md hover:border-primary transition-colors">
-                        <RefreshCw className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-400">Refresh</span>
+                    <button onClick={fetchData} className="p-2 bg-surface border border-gray-700 rounded-lg hover:border-primary transition-colors group">
+                        <RefreshCw className="w-5 h-5 text-gray-400 group-hover:text-primary group-hover:rotate-180 transition-all duration-500" />
                     </button>
                 </div>
             </div>
 
-            {/* Top Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <StatCard label="Monitored Users" value={data.stats.monitored_users.toLocaleString()} />
-                <StatCard label="Current High Risk Users" value={data.stats.high_risk_users.toLocaleString()} />
-                <StatCard label="Sense Events (Last Hour)" value={data.stats.events_last_hour.toLocaleString()} />
-                <StatCard label="Offenses Generated (Last Hour)" value={data.stats.offenses_last_hour.toLocaleString()} />
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <StatCard
+                    label="Active Threats"
+                    value={data.stats.offenses_last_hour}
+                    icon={AlertTriangle}
+                    color="text-danger"
+                    trend="+12%"
+                    trendUp={true}
+                />
+                <StatCard
+                    label="Network Events"
+                    value={data.stats.events_last_hour}
+                    icon={Globe}
+                    color="text-blue-400"
+                    trend="+5%"
+                    trendUp={true}
+                />
+                <StatCard
+                    label="High Risk Users"
+                    value={data.stats.high_risk_users}
+                    icon={User}
+                    color="text-warning"
+                    trend="-2%"
+                    trendUp={false}
+                />
+                <StatCard
+                    label="System Health"
+                    value="98.2%"
+                    icon={Server}
+                    color="text-green-400"
+                    trend="Stable"
+                    trendUp={true}
+                />
             </div>
 
-            {/* Main Charts Area */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                {/* System Score Chart */}
-                <div className="lg:col-span-2 bg-surface p-4 rounded-xl border border-gray-700">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-semibold text-gray-200">System Score (Last Day)</h2>
+            {/* Main Visuals */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* System Score Area */}
+                <div className="lg:col-span-2 bg-surface/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
+                            <Activity className="w-5 h-5 text-primary" />
+                            Threat Landscape
+                        </h3>
                     </div>
-                    <div className="h-64">
+                    <div className="h-72">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={data.charts.system_score}>
                                 <defs>
@@ -74,145 +115,99 @@ const Dashboard = () => {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                <XAxis dataKey="time" stroke="#94a3b8" tick={{ fontSize: 12 }} />
-                                <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                                <XAxis dataKey="time" stroke="#64748b" tick={{ fontSize: 12 }} />
+                                <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155' }}
-                                    itemStyle={{ color: '#fff' }}
+                                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
+                                    itemStyle={{ color: '#e2e8f0' }}
                                 />
-                                <Area type="monotone" dataKey="score" stroke="#3b82f6" fillOpacity={1} fill="url(#colorScore)" />
+                                <Area type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorScore)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
-                {/* Threat Types Bar Chart */}
-                <div className="bg-surface p-4 rounded-xl border border-gray-700">
-                    <h2 className="font-semibold text-gray-200 mb-4">Threat Types Distribution</h2>
-                    <div className="h-64">
+                {/* Risk Radar */}
+                <div className="bg-surface/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-200 mb-6 flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-purple-400" />
+                        Risk Distribution
+                    </h3>
+                    <div className="h-72">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={data.charts.threat_types}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                <XAxis dataKey="name" stroke="#94a3b8" tick={{ fontSize: 11 }} />
-                                <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} />
+                            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                                <PolarGrid stroke="#334155" />
+                                <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 12 }} />
+                                <PolarRadiusAxis angle={30} domain={[0, 150]} tick={false} axisLine={false} />
+                                <Radar name="Events" dataKey="A" stroke="#8b5cf6" strokeWidth={2} fill="#8b5cf6" fillOpacity={0.3} />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155' }}
-                                    itemStyle={{ color: '#fff' }}
+                                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
+                                    itemStyle={{ color: '#e2e8f0' }}
                                 />
-                                <Bar dataKey="count" radius={[8, 8, 0, 0]}>
-                                    {data.charts.threat_types.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
+                            </RadarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
             </div>
 
-            {/* Bottom Lists - 4 column layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* High Risk Users List */}
-                <div className="bg-surface p-4 rounded-xl border border-gray-700">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-semibold text-gray-200">High Risk Users</h2>
-                        <span className="text-xs text-primary cursor-pointer">View all &gt;</span>
-                    </div>
-                    <div className="space-y-3">
-                        {data.lists.high_risk_users.map((user, idx) => (
-                            <div key={idx} className="flex items-center justify-between py-2 border-b border-gray-700 last:border-0">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-xs">
-                                        {user.username.substring(0, 2).toUpperCase()}
-                                    </div>
-                                    <span className="text-sm font-medium">{user.username}</span>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <span className="font-bold text-gray-200">{user.score.toLocaleString()}</span>
-                                    <Eye className="w-4 h-4 text-danger cursor-pointer" />
-                                </div>
-                            </div>
-                        ))}
+            {/* Bottom Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Active Threats Table */}
+                <div className="bg-surface/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
+                    <h3 className="text-lg font-semibold text-gray-200 mb-4 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-danger" />
+                        Active Threats
+                    </h3>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="text-gray-500 text-xs uppercase tracking-wider border-b border-gray-800">
+                                    <th className="pb-3 pl-2">Severity</th>
+                                    <th className="pb-3">Threat</th>
+                                    <th className="pb-3">Entity</th>
+                                    <th className="pb-3 text-right pr-2">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-sm">
+                                {data.lists.recent_offenses.map((offense, idx) => (
+                                    <tr key={idx} className="border-b border-gray-800/50 hover:bg-white/5 transition-colors">
+                                        <td className="py-3 pl-2">
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${offense.risk_score > 80 ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                                                }`}>
+                                                {offense.risk_score}
+                                            </span>
+                                        </td>
+                                        <td className="py-3 font-medium text-gray-200">{offense.title || "Security Alert"}</td>
+                                        <td className="py-3 text-gray-400">{offense.user}</td>
+                                        <td className="py-3 text-right pr-2 text-gray-500 font-mono">{offense.time}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                {/* Live Logs */}
-                <div className="bg-surface p-4 rounded-xl border border-gray-700">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-semibold text-gray-200">Live Logs</h2>
-                        <Activity className="w-4 h-4 text-green-500 animate-pulse" />
-                    </div>
-                    <div className="space-y-2 max-h-80 overflow-y-auto">
+                {/* Terminal Logs */}
+                <div className="bg-black border border-gray-800 rounded-2xl p-6 font-mono text-xs relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
+                    <h3 className="text-lg font-semibold text-gray-200 mb-4 flex items-center gap-2">
+                        <Terminal className="w-5 h-5 text-green-500" />
+                        Live Stream
+                    </h3>
+                    <div className="space-y-2 h-64 overflow-y-auto pr-2 custom-scrollbar">
                         {data.lists.live_logs.map((log, idx) => (
-                            <div key={idx} className="p-2 bg-background rounded border border-gray-700 text-xs">
-                                <div className="flex justify-between items-start mb-1">
-                                    <span className="text-gray-400">#{log.id}</span>
-                                    <span className={`px-2 py-0.5 rounded text-[10px] ${
-                                        log.status === 'processed' ? 'bg-green-900 text-green-300' : 'bg-yellow-900 text-yellow-300'
+                            <div key={idx} className="flex gap-3 text-gray-400 hover:text-gray-200 transition-colors">
+                                <span className="text-gray-600">[{log.timestamp.split(' ')[1]}]</span>
+                                <span className={`${log.category === 'network' ? 'text-blue-400' :
+                                        log.category === 'hardware' ? 'text-yellow-400' :
+                                            log.category === 'application' ? 'text-green-400' : 'text-red-400'
                                     }`}>
-                                        {log.status}
-                                    </span>
-                                </div>
-                                <div className="text-gray-300 font-medium">{log.event_type}</div>
-                                <div className="text-gray-500 text-[10px] mt-1">
-                                    <span className="text-blue-400">{log.source}</span> | {log.entity_id}
-                                </div>
-                                <div className="text-gray-600 text-[10px] mt-1">{log.timestamp}</div>
+                                    {log.category ? log.category.toUpperCase() : 'SEC'}
+                                </span>
+                                <span className="flex-1 truncate">{log.event_type} - {log.source}</span>
                             </div>
                         ))}
-                    </div>
-                </div>
-
-                {/* Anomalies */}
-                <div className="bg-surface p-4 rounded-xl border border-gray-700">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-semibold text-gray-200">Detected Anomalies</h2>
-                        <AlertTriangle className="w-4 h-4 text-red-500" />
-                    </div>
-                    <div className="space-y-2 max-h-80 overflow-y-auto">
-                        {data.lists.anomalies.map((anomaly, idx) => (
-                            <div key={idx} className="p-2 bg-background rounded border border-red-900/30 text-xs">
-                                <div className="flex justify-between items-start mb-1">
-                                    <span className="text-red-400 font-bold">Risk: {anomaly.risk_score}</span>
-                                    <span className={`px-2 py-0.5 rounded text-[10px] ${
-                                        anomaly.status === 'new' ? 'bg-red-900 text-red-300' : 'bg-orange-900 text-orange-300'
-                                    }`}>
-                                        {anomaly.status}
-                                    </span>
-                                </div>
-                                <div className="text-gray-300 font-medium">{anomaly.title}</div>
-                                <div className="text-gray-500 text-[10px] mt-1">
-                                    User: <span className="text-blue-400">{anomaly.entity_id}</span>
-                                </div>
-                                <div className="text-gray-600 text-[10px] mt-1">{anomaly.timestamp}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Recent Offenses */}
-                <div className="bg-surface p-4 rounded-xl border border-gray-700">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-semibold text-gray-200">Recent Offenses</h2>
-                    </div>
-                    <div className="space-y-3 max-h-80 overflow-y-auto">
-                        {data.lists.recent_offenses.map((offense, idx) => (
-                            <div key={idx} className="p-3 bg-background rounded-lg border border-gray-700">
-                                <div className="text-xs text-gray-400 mb-1">Offense #{offense.id}</div>
-                                <div className="font-medium text-primary text-sm">{offense.user}</div>
-                                <div className="text-xs text-gray-500 mt-1">Events: {offense.event_count}</div>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-gradient-to-r from-yellow-500 to-red-500"
-                                            style={{ width: `${offense.magnitude * 10}%` }}
-                                        ></div>
-                                    </div>
-                                    <span className="text-xs font-bold whitespace-nowrap">{offense.magnitude}/10</span>
-                                </div>
-                                <div className="text-xs text-gray-600 mt-1">{offense.time}</div>
-                            </div>
-                        ))}
+                        <div className="animate-pulse text-primary">_</div>
                     </div>
                 </div>
             </div>
@@ -220,10 +215,21 @@ const Dashboard = () => {
     );
 };
 
-const StatCard = ({ label, value }) => (
-    <div className="bg-surface p-6 rounded-xl border border-gray-700">
-        <p className="text-sm text-gray-400 mb-2">{label}</p>
-        <p className="text-4xl font-bold text-gray-100">{value}</p>
+const StatCard = ({ label, value, icon: Icon, color, trend, trendUp }) => (
+    <div className="bg-surface/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-gray-700 transition-all duration-300">
+        <div className="flex justify-between items-start mb-4">
+            <div className={`p-3 rounded-xl bg-gray-900/50 ${color}`}>
+                <Icon className="w-6 h-6" />
+            </div>
+            {trend && (
+                <span className={`text-xs font-medium px-2 py-1 rounded-full ${trendUp ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
+                    }`}>
+                    {trend}
+                </span>
+            )}
+        </div>
+        <p className="text-gray-400 text-sm font-medium">{label}</p>
+        <h3 className="text-3xl font-bold text-white mt-1">{typeof value === 'number' ? value.toLocaleString() : value}</h3>
     </div>
 );
 

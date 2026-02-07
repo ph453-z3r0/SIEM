@@ -14,6 +14,7 @@ class Log(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     source: str # firewall, ad, endpoint
+    category: str = "security" # security, network, application, hardware
     event_type: str # login, file_access, process_start
     entity_id: str = Field(index=True) # user_id or ip_address
     raw_data: str # JSON string

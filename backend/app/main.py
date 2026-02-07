@@ -5,8 +5,12 @@ from app.core.database import create_db_and_tables
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    from app.core.logging import setup_logging, logger
+    setup_logging()
+    logger.info("Sentinel-X SIEM Backend Starting...")
     create_db_and_tables()
     yield
+    logger.info("Sentinel-X SIEM Backend Shutting Down...")
 
 from fastapi.middleware.cors import CORSMiddleware
 
